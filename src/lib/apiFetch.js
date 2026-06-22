@@ -1,0 +1,27 @@
+const TOKEN_KEY = 'staff_token'
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY)
+}
+
+export function setToken(t) {
+  localStorage.setItem(TOKEN_KEY, t)
+}
+
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY)
+}
+
+export function apiFetch(path, opts = {}) {
+  const token = getToken()
+  const headers = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...opts.headers,
+  }
+  return fetch(path, { ...opts, headers }).then(res => {
+    const newToken = res.headers.get('X-New-Token')
+    if (newToken) setToken(newToken)
+    return res
+  })
+}
