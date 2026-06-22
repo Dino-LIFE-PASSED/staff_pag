@@ -1,4 +1,5 @@
 const TOKEN_KEY = 'staff_token'
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY)
@@ -19,7 +20,7 @@ export function apiFetch(path, opts = {}) {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...opts.headers,
   }
-  return fetch(path, { ...opts, headers }).then(res => {
+  return fetch(`${API_BASE}${path}`, { ...opts, headers }).then(res => {
     const newToken = res.headers.get('X-New-Token')
     if (newToken) setToken(newToken)
     return res
