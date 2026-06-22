@@ -18,3 +18,9 @@
 button:not(:disabled) {
   cursor: pointer;
 }
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  font-size: max(16px, 1em);
+}
