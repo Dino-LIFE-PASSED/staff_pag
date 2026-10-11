@@ -9,7 +9,7 @@ function ProductCombobox({ products, value, onChange, openId, setOpenId, myId })
   const isOpen = openId === myId
   const selected = products.find(p => p.id === value)
   const filtered = search
-    ? products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()))
+    ? products.filter(p => (p.name ?? '').toLowerCase().includes(search.toLowerCase()))
     : products
 
   if (selected) {
@@ -51,9 +51,9 @@ function ProductCombobox({ products, value, onChange, openId, setOpenId, myId })
         <input
           type="text"
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={e => { setSearch(e.target.value); setOpenId(myId) }}
           onFocus={() => setOpenId(myId)}
-          onBlur={() => setTimeout(() => setOpenId(null), 150)}
+          onBlur={() => setTimeout(() => setOpenId(cur => (cur === myId ? null : cur)), 150)}
           placeholder="Search product..."
           className="flex-1 py-1.5 bg-transparent text-[#111] placeholder:text-[#CCC] focus:outline-none text-sm"
           autoFocus
