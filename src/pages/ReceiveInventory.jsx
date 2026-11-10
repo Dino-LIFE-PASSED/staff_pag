@@ -62,7 +62,9 @@ function ProductCombobox({ products, value, onChange, openId, setOpenId, myId })
       {isOpen && (
         <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-[#E2E2E0] shadow-xl z-20 max-h-52 overflow-y-auto">
           {filtered.length === 0 ? (
-            <p className="px-4 py-3 text-sm text-[#AAA]">No products found</p>
+            <p className="px-4 py-3 text-sm text-[#AAA]">
+              {products.length === 0 ? 'Product list is empty — nothing loaded from server' : `No match for "${search}"`}
+            </p>
           ) : filtered.map(p => (
             <button
               key={p.id}
@@ -102,12 +104,16 @@ export default function ReceiveInventory({ auth, onLogout, onBack }) {
   const [submitting, setSubmitting] = useState(false)
   const [result, setResult] = useState(null)
   const [error, setError] = useState('')
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
     apiFetch('/api/inventory/products')
-      .then(r => r.json())
-      .then(data => setProducts(Array.isArray(data) ? data : []))
-      .catch(() => {})
+      .then(async r => {
+        const data = await r.json().catch(() => null)
+        if (!r.ok || !Array.isArray(data)) throw new Error(`${r.status} — ${data?.error ?? 'Unexpected response'}`)
+        setProducts(data)
+      })
+      .catch(err => setLoadError(err.message || 'Network error'))
       .finally(() => setLoadingProducts(false))
   }, [])
 
@@ -225,6 +231,10 @@ export default function ReceiveInventory({ auth, onLogout, onBack }) {
               </div>
             ) : (
               <>
+                {loadError && (
+                  <p className="text-sm text-[#D41414] px-1">Could not load products: {loadError}</p>
+                )}
+
                 {/* Item cards */}
                 {items.map((item, idx) => (
                   <div key={item.id} className="bg-white border border-[#E2E2E0] p-5 flex flex-col gap-4">
